@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Examen Api Pokemon</title>
+    <meta name="author" content="Santiago Jonathan Beltrán Ramírez">
+    <meta name="description" content="Consumo de Api Pokemon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+</head>
+
+<body>
+    <div class="container mt-4  p3 mb-4 rounded">
+        <h1>Lista de Pokemones <img src="https://img.icons8.com/cute-clipart/64/000000/pokemon-go.png"/></h1>
+        <table class="table table-bordered table-striped bg-white shadow-lg" style="text-align:center;">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Pokemon</th>
+                    <th>Habilidad(es)</th>
+                    <th>Imagen</th>
+                </tr>
+            </thead>
+            <tbody id="datos" class="tbody-dark"></tbody>
+        </table>
+        <div id="links" style="display: flex; justify-content: space-between;"></div>
+    </div>
+
+    <script>
+        const getPokemons = (url) => {
+            //let url = 'https://pokeapi.co/api/v2/pokemon/';
+            let links = document.getElementById("links");
+
+            let body = '';
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.next)
+                    for (let i of data.results) {
+                        fetch(i.url)
+                            .then(response => response.json())
+                            .then(info => {
+                                //console.log("DATOOOOS", x)
+                                const { abilities } = info;
+                                //console.log("HOLAAAA " + abilities)
+                                let habilidades = abilities.map((habi) => {
+                                    return habi.ability.name
+                                })
+                                //console.log("HABILIDADES ", habilidades)
+
+
+                                body = body +
+                                `<tr>
+                                    <td>${info.id}</td>
+                                    <td>${info.name}</td>
+                                    <td>${habilidades}</td>
+                                    <td><img src="${info.sprites.front_default}"/></td>
+                                </tr>`
+
+                                document.getElementById('datos').innerHTML = body
+                            });
+
+                    }
+
+                    links.innerHTML = (data.previous) ? `<button class="btn btn-dark" onclick="getPokemons('${data.previous}')" > Atrás </button>` : "";
+                    links.innerHTML += (data.next) ? `<button class="btn btn-dark" onclick="getPokemons('${data.next}')"> Siguiente </button>` : "";
+
+                }).catch(error => console.error(error))
+
+        }
+
+        getPokemons("https://pokeapi.co/api/v2/pokemon");
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</body>
+</html>
